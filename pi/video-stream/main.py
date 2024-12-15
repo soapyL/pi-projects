@@ -80,10 +80,12 @@ def motion_detection(output):
     print("Starting motion detection...")
     prev_frame = None
     motion_has_been_detected = False
+
     while True:
         with output.condition:
             output.condition.wait()
             frame = output.frame
+
         # Convert JPEG frame to numpy array
         frame_array = np.frombuffer(frame, dtype=np.uint8)
         img = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
@@ -96,23 +98,23 @@ def motion_detection(output):
 
         # Compute frame difference
         frame_diff = cv2.absdiff(prev_frame, gray)
-        thresh = cv2.threshold(frame_diff, 25, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(frame_diff, 50, 255, cv2.THRESH_BINARY)[1]  # Adjust threshold value
         thresh = cv2.dilate(thresh, None, iterations=2)
         contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        motion_detected = False
-        for contour in contours:
-            if cv2.contourArea(contour) > 500:  # Minimum area to consider motion
-                motion_detected = True
-                break
-            else:
+        motion_detected = any(cv2.contourArea(contour) > 1000 for contour in contours)  # Check if any contour exceeds threshold
+
+        if motion_detected:
+            if not motion_has_been_detected:
+                print("Motion detected!")
+                motion_has_been_detected = True
+        else:
+            if motion_has_been_detected:
+                print("Motion stopped.")
                 motion_has_been_detected = False
 
-        if motion_detected and not motion_has_been_detected:
-            print("Motion detected!")
-            motion_has_been_detected = True
-
         prev_frame = gray
+
 
 # Create Picamera2 instance and configure it
 picam2 = Picamera2()
