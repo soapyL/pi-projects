@@ -90,8 +90,7 @@ def motion_detection(output):
         # Increment the frame counter
         frame_counter += 1
 
-        # Only check motion every 60 frames
-        if frame_counter < 60:
+        if frame_counter < 15:
             continue
         frame_counter = 0  # Reset counter after 60 frames
 
