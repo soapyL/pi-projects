@@ -80,11 +80,20 @@ def motion_detection(output):
     print("Starting motion detection...")
     prev_frame = None
     motion_has_been_detected = False
+    frame_counter = 0  # Initialize a frame counter
 
     while True:
         with output.condition:
             output.condition.wait()
             frame = output.frame
+
+        # Increment the frame counter
+        frame_counter += 1
+
+        # Only check motion every 60 frames
+        if frame_counter < 60:
+            continue
+        frame_counter = 0  # Reset counter after 60 frames
 
         # Convert JPEG frame to numpy array
         frame_array = np.frombuffer(frame, dtype=np.uint8)
@@ -114,6 +123,7 @@ def motion_detection(output):
                 motion_has_been_detected = False
 
         prev_frame = gray
+
 
 
 # Create Picamera2 instance and configure it
