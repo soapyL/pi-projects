@@ -17,7 +17,7 @@ PAGE = """\
 <title>Pi Stream</title>
 </head>
 <body>
-<img src="stream.mjpg" width="640" height="480" />
+<img src="stream.mjpg" width="80%" height="auto" />
 </body>
 </html>
 """
